@@ -24,6 +24,8 @@ class Index extends AbstractIndex implements IndexInterface
     private $noFieldsEnabled = false;
     /** @var bool */
     private $noFrequenciesEnabled = false;
+    /** @var bool */
+    private $noStopWordsEnabled = false;
     /** @var array */
     private $stopWords = null;
 
@@ -44,10 +46,15 @@ class Index extends AbstractIndex implements IndexInterface
         if ($this->isNoFrequenciesEnabled()) {
             $properties[] = 'NOFREQS';
         }
-        if (!is_null($this->stopWords)) {
-            $properties[] = 'STOPWORDS';
-            $properties[] = count($this->stopWords);
-            $properties = array_merge($properties, $this->stopWords);
+        if ($this->isNoStopWordsEnabled()) {
+            $properties[] = "STOPWORDS";
+            $properties[] = "NONE";
+        } else {
+            if (!is_null($this->stopWords)) {
+                $properties[] = 'STOPWORDS';
+                $properties[] = count($this->stopWords);
+                $properties = array_merge($properties, $this->stopWords);
+            }
         }
         $properties[] = 'SCHEMA';
 
@@ -234,6 +241,24 @@ class Index extends AbstractIndex implements IndexInterface
     /**
      * @return bool
      */
+    public function isNoStopWordsEnabled(): bool
+    {
+        return $this->noStopWordsEnabled;
+    }
+
+    /**
+     * @param bool $noStopWordsEnabled
+     * @return IndexInterface
+     */
+    public function setNoStopWordsEnabled(bool $noStopWordsEnabled): IndexInterface
+    {
+        $this->noStopWordsEnabled = $noStopWordsEnabled;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
     public function isNoFieldsEnabled(): bool
     {
         return $this->noFieldsEnabled;
@@ -266,7 +291,6 @@ class Index extends AbstractIndex implements IndexInterface
         $this->noFrequenciesEnabled = $noFrequenciesEnabled;
         return $this;
     }
-    
     /**
      * @param array $stopWords
      * @return IndexInterface
